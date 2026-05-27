@@ -3,34 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MentalHabit 2.0 - 습관 관리 및 포인트 상점</title>
+    <title>MentalHabit 2.0 - 프리미엄 대시보드 및 리워드 시스템</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    
     <style>
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
-        /* 시계형 일간 플랜을 위한 커스텀 스타일 */
-        .clock-container { position: relative; width: 280px; height: 280px; border-radius: 50%; border: 8px solid #334155; background: #1e293b; margin: 0 auto; }
-        .clock-number { position: absolute; width: 20px; height: 20px; text-align: center; color: #94a3b8; font-weight: bold; font-size: 14px; }
+        
+        /* 1. 시계형 일간 플랜 (Clock-View) 스타일 */
+        .clock-container { 
+            position: relative; 
+            width: 280px; 
+            height: 280px; 
+            border-radius: 50%; 
+            border: 8px solid #334155; 
+            background: radial-gradient(circle, #1e293b 60%, #0f172a 100%); 
+            margin: 0 auto;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .clock-number { 
+            position: absolute; 
+            width: 24px; 
+            height: 24px; 
+            text-align: center; 
+            line-height: 24px;
+            color: #64748b; 
+            font-weight: 600; 
+            font-size: 13px; 
+            font-family: 'monospace';
+        }
+
+        /* 2. 실시간 달성률 프로그래스 바 스타일 */
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #38bdf8 0%, #10b981 100%);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 미션 리스트 스크롤 영역 커스텀 스크롤바 */
+        .mission-scroll::-webkit-scrollbar { width: 6px; }
+        .mission-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+        .mission-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
+        .mission-scroll::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* 3. 상점 브랜드별 고유 시그니처 컬러 테두리 및 뱃지 */
+        .brand-shinsegae { border-top: 4px solid #5B4A42 !important; }
+        .brand-baemin { border-top: 4px solid #2AC1BC !important; }
+        .brand-naverpay { border-top: 4px solid #03C75A !important; }
+        .brand-gs25 { border-top: 4px solid #0054A6 !important; }
+        .brand-cu { border-top: 4px solid #743484 !important; }
+        .brand-culture { border-top: 4px solid #EF5924 !important; }
+
+        .badge-shinsegae { background-color: #5B4A42; color: #ffffff; }
+        .badge-baemin { background-color: #2AC1BC; color: #000000; font-weight: bold; }
+        .badge-naverpay { background-color: #03C75A; color: #ffffff; }
+        .badge-gs25 { background-color: #0054A6; color: #ffffff; }
+        .badge-cu { background-color: #743484; color: #ffffff; }
+        .badge-culture { background-color: #EF5924; color: #ffffff; }
+
+        /* 포인트 상태에 따른 지능형 펄스 애니메이션 */
+        .pulse-green { animation: pulseG 2s infinite; }
+        .pulse-red { animation: pulseR 2s infinite; }
+        @keyframes pulseG {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); border-color: rgba(16, 185, 129, 0.2); }
+        }
+        @keyframes pulseR {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 0.6); }
+            50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.2); }
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-height-screen pb-12">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
 
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-md">
+    <header class="bg-slate-800/90 backdrop-blur-md border-b border-slate-700 sticky top-0 z-40 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-brain text-sky-400 text-2xl"></i>
                 <h1 class="text-xl font-bold tracking-tight text-white">MentalHabit <span class="text-sky-400">2.0</span></h1>
             </div>
             <nav class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700">
-                <button onclick="switchTab('plan-tab')" id="btn-plan-tab" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-sky-500 text-black">습관 플래너</button>
+                <button onclick="switchTab('plan-tab')" id="btn-plan-tab" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-sky-500 text-black font-semibold">습관 플래너</button>
                 <button onclick="switchTab('shop-tab')" id="btn-shop-tab" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-400 hover:text-white">포인트 상점</button>
             </nav>
-            <div class="bg-slate-900 px-4 py-2 rounded-full border border-sky-500/30 flex items-center gap-2 shadow-inner">
-                <i class="fa-solid fa-coins text-amber-400 animate-pulse"></i>
+            
+            <div id="point-bar-container" class="bg-slate-900 px-5 py-2 rounded-full border flex items-center gap-2 shadow-inner transition-all duration-300">
+                <i id="point-icon" class="fa-solid fa-coins text-amber-400"></i>
                 <span class="text-xs text-slate-400 font-medium">보유 포인트:</span>
-                <span id="user-points-display" class="font-bold text-amber-400 text-lg">50,000</span>
-                <span class="text-xs text-amber-400">P</span>
+                <span id="user-points-display" class="font-mono font-black text-amber-400 text-lg">0</span>
+                <span class="text-xs text-amber-400 font-bold">P</span>
             </div>
         </div>
     </header>
@@ -38,20 +100,59 @@
     <main class="max-w-7xl mx-auto px-4 mt-8">
         
         <section id="plan-tab" class="tab-content block">
+            
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-emerald-400"></i> 실시간 습관 달성 대시보드
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">미션을 완료하여 리워드 포인트를 획득하고 월간 실천율을 올리세요.</p>
+                    </div>
+                    <div class="flex items-baseline gap-1 bg-slate-900 px-4 py-1.5 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-medium">종합 달성률:</span>
+                        <span id="dashboard-rate-text" class="text-2xl font-black text-emerald-400 font-mono tracking-tight">0%</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-900 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                    <div id="dashboard-progress-fill" class="progress-bar-fill h-full rounded-full" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-[11px] text-slate-500 font-mono mt-2 px-1">
+                    <span>STATUS: REWARD ECOSYSTEM ACTIVE</span>
+                    <span id="dashboard-count-text">0 / 31 DAYS COMPLETED</span>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:col-span-7 shadow-xl">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-regular fa-calendar-days text-sky-400"></i> 월간 습관 달력 (5월)
-                        </h2>
-                        <span class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">달성률 68%</span>
-                    </div>
-                    <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2 border-b border-slate-700 pb-2">
-                        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-                    </div>
-                    <div class="grid grid-cols-7 gap-2" id="calendar-grid">
+                <div class="lg:col-span-7 space-y-8">
+                    
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-amber-400 animate-spin" style="animation-duration: 8s;"></i> 오늘의 핵심 기본 미션 (25)
+                            </h3>
+                            <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded font-mono font-bold">+1,000 P EACH</span>
                         </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[290px] overflow-y-auto pr-2 mission-scroll" id="base-mission-container">
+                            </div>
+                    </div>
+
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-regular fa-calendar-days text-sky-400"></i> 월간 실천 로깅 달력 (5월)
+                            </h2>
+                            <span class="text-xs text-slate-400 font-medium font-mono">MAY 2026</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-3 border-b border-slate-700 pb-2">
+                            <div class="text-rose-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-sky-400">토</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-2" id="calendar-grid">
+                            </div>
+                    </div>
                 </div>
 
                 <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:col-span-5 shadow-xl flex flex-col justify-between">
@@ -60,22 +161,31 @@
                             <h2 class="text-lg font-bold text-white flex items-center gap-2">
                                 <i class="fa-regular fa-clock text-emerald-400"></i> 일간 루틴 루프 (Clock-View)
                             </h2>
-                            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">오늘의 플랜</span>
+                            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">오늘의 루프</span>
                         </div>
                         
                         <div class="py-4">
                             <div class="clock-container" id="routine-clock">
-                                <div class="absolute inset-0 m-auto w-3 h-3 bg-emerald-400 rounded-full shadow-[0_0_10px_#10b981]"></div>
-                                </div>
+                                <div class="absolute inset-0 m-auto w-3 h-3 bg-emerald-400 rounded-full shadow-[0_0_12px_#10b981]"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-4 bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                        <h3 class="text-xs font-semibold text-slate-400 mb-2">지정된 시간별 핵심 루틴</h3>
+                    <div class="mt-4 bg-slate-900/50 rounded-xl p-4 border border-slate-700/50 space-y-2.5">
+                        <h3 class="text-xs font-semibold text-slate-400 mb-1">지정 시간대별 타임 트랙</h3>
                         <div class="space-y-2 text-xs">
-                            <div class="flex justify-between"><span class="text-emerald-400 font-medium">06:00 미라클 모닝</span><span class="text-slate-500">완료</span></div>
-                            <div class="flex justify-between"><span class="text-sky-400 font-medium">12:00 건강 정보 심화 학습</span><span class="text-slate-500">완료</span></div>
-                            <div class="flex justify-between"><span class="text-amber-400 font-medium">22:00 오프라인 일기 작성</span><span class="text-amber-500 font-medium">진행 대기</span></div>
+                            <div class="flex justify-between items-center bg-slate-800 p-2 rounded-lg border-l-4 border-emerald-500">
+                                <span class="text-slate-200 font-medium">06:00 심호흡 및 미라클 모닝 명상</span>
+                                <span class="text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded">완료</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-800 p-2 rounded-lg border-l-4 border-sky-500">
+                                <span class="text-slate-200 font-medium">12:00 독서하기 및 데이터 마이닝 실습</span>
+                                <span class="text-sky-400 font-bold bg-sky-950/80 px-2 py-0.5 rounded">완료</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-800 p-2 rounded-lg border-l-4 border-amber-500">
+                                <span class="text-slate-200 font-medium">22:00 운동 30분 및 데일리 피드백</span>
+                                <span class="text-amber-400 font-bold bg-amber-950/80 px-2 py-0.5 rounded">대기</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -87,13 +197,13 @@
             <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-white tracking-tight">Ecosystem Point Shop</h2>
-                    <p class="text-sm text-slate-400 mt-1">성공적인 습관 형성 보상으로 제공되는 실시간 B2B 연동형 상점 인프라입니다.</p>
+                    <p class="text-sm text-slate-400 mt-1">기프티쇼 비즈 실시간 데이터 가상 라인 기반 교환소</p>
                 </div>
                 <div class="flex flex-wrap gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
-                    <button onclick="filterShop('all')" class="px-3 py-1.5 rounded-lg font-medium bg-slate-700 text-white" id="filter-all">전체 쿠폰</button>
-                    <button onclick="filterShop('department')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" id="filter-department">백화점·주유</button>
-                    <button onclick="filterShop('delivery')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" id="filter-delivery">배달·페이</button>
-                    <button onclick="filterShop('convenience')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" id="filter-convenience">편의점·상품권</button>
+                    <button onclick="filterShop('all')" class="px-3 py-1.5 rounded-lg font-medium bg-slate-700 text-white transition-all" id="filter-all">전체 쿠폰</button>
+                    <button onclick="filterShop('department')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all" id="filter-department">백화점·주유</button>
+                    <button onclick="filterShop('delivery')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all" id="filter-delivery">배달·페이</button>
+                    <button onclick="filterShop('convenience')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all" id="filter-convenience">편의점·상품권</button>
                 </div>
             </div>
 
@@ -103,9 +213,9 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    <span><strong>2-1. 외부 API 커넥터 상태:</strong> <span class="text-emerald-400">기프티쇼 비즈 (Giftishow Biz) Production 전용선 연동 완료</span></span>
+                    <span><strong>2-1. API 커넥터 상태:</strong> <span class="text-emerald-400 font-medium">Giftishow Biz Live Production Secure API Connected</span></span>
                 </div>
-                <span class="text-slate-500 hidden sm:inline">정방향 동기화 데이터 SKU: 45 EA</span>
+                <span class="text-slate-500 hidden sm:inline font-mono">Total Sync SKU: 45 Item Nodes</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="shop-products-container">
@@ -115,45 +225,75 @@
     </main>
 
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white text-slate-900 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl transform transition-transform border border-slate-200">
+        <div class="bg-white text-slate-900 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-200">
             <div class="flex justify-between items-center mb-4">
-                <span id="modal-brand" class="text-xs font-bold text-slate-500 tracking-wider block uppercase">BRAND</span>
+                <span id="modal-brand-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wider uppercase">BRAND</span>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <h3 id="modal-name" class="text-lg font-black text-slate-900 mb-6">상품 기본 정보 명칭</h3>
+            <h3 id="modal-name" class="text-base font-black text-slate-900 mb-6">상품 기본 정보 명칭</h3>
             
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 flex flex-col items-center justify-center">
+            <div class="bg-white p-5 rounded-2xl border-2 border-dashed border-slate-200 mb-4 flex flex-col items-center justify-center shadow-inner">
                 <svg id="barcode-canvas" class="max-w-full"></svg>
-                <div class="mt-4 flex items-center gap-2 bg-white px-4 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                <div class="mt-4 flex items-center gap-2 bg-slate-50 px-4 py-1.5 rounded-lg border border-slate-200">
                     <span id="modal-code" class="font-mono tracking-widest text-slate-800 font-bold text-sm">0000 0000 0000</span>
-                    <button onclick="copyCode()" class="text-slate-400 hover:text-sky-600 text-xs transition-colors" title="번호 복사"><i class="fa-regular fa-copy"></i></button>
+                    <button onclick="copyCode()" class="text-slate-400 hover:text-sky-600 text-xs transition-colors" title="일련번호 복사"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </div>
 
-            <div class="text-left text-xs space-y-1.5 text-slate-500 border-t border-slate-100 pt-4 px-1">
-                <div class="flex justify-between"><span>발행 공급처</span><span class="font-medium text-slate-700">KT알파 기프티쇼 비즈</span></div>
-                <div class="flex justify-between"><span>교환처 정보</span><span id="modal-exchange" class="font-medium text-slate-700">-</span></div>
-                <div class="flex justify-between"><span>유효기간</span><span class="font-medium text-rose-600 font-semibold">2026-08-25 (90일 남음)</span></div>
+            <div class="text-left text-xs space-y-2 text-slate-500 border-t border-slate-100 pt-4 px-1">
+                <div class="flex justify-between"><span>발행 공급처</span><span class="font-medium text-slate-700">KT알파 기프티쇼 비즈 (B2B 주관사)</span></div>
+                <div class="flex justify-between"><span>오프라인 교환처</span><span id="modal-exchange" class="font-medium text-slate-700 text-right max-w-[200px] truncate">-</span></div>
+                <div class="flex justify-between"><span>쿠폰 유효기간</span><span class="font-bold text-rose-600">2026-08-25 (발행일로부터 90일 유효)</span></div>
             </div>
 
-            <button onclick="closeModal()" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-md">확인 및 닫기</button>
+            <button onclick="closeModal()" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-md">사용 완료 및 닫기</button>
         </div>
     </div>
 
     <script>
-        // 글로벌 가상 데이터베이스 상태 모델 구조
-        let userPoints = 50000;
+        // 초기 자본금 0P 세팅으로 사용자가 미션을 깨서 포인트를 벌도록 유도
+        let userPoints = 0; 
         
-        // 2-2. 45개 이상의 SKU 실물형 쿠폰 메타 데이터 바인딩 데이터 세트
+        // 1. 25개 명품 기본 미션 데이터 세트 빌더
+        const baseMissions = [
+            "심호흡 하기", "독서하기", "운동 30분", "물 2L 마시기", "스트레칭 10분",
+            "비타민 챙겨먹기", "감사일기 쓰기", "7시간 이상 수면", "미라클 모닝 인증", "자세 교정 5분",
+            "스쿼트 50회", "영어 단어 5개 암호", "플랭크 2분", "보건학 논문 탐독", "스마트폰 시간 줄이기",
+            "뉴스 헤드라인 읽기", "의료 코딩 복습", "방 정리 정돈하기", "카페인 섭취 조절", "일기 작성하기",
+            "명상 10분 하기", "가벼운 산책", "체중 기록하기", "가계부 작성", "오늘의 목표 복기"
+        ].map((title, idx) => ({
+            id: `MIS-BASE-${200 + idx}`,
+            title: title,
+            isDone: false,
+            reward: 1000 // 미션 클리어 시 지급될 금액권 가치 설정
+        }));
+
+        // 캘린더 내부 체크 보관 테이블
+        const calendarState = Array.from({ length: 31 }, (_, i) => ({
+            day: i + 1,
+            isCompleted: false // 초기값 미달성 고정
+        }));
+
         const productBrands = ['신세계백화점', '배달의민족', '네이버페이', 'GS25', 'CU', '문화상품권'];
-        const mockExchangePlaces = {
-            '신세계백화점': '전국 신세계백화점 및 이마트 고객센터',
-            '배달의민족': '배달의민족 앱 등록 후 결제 사용',
-            '네이버페이': '네이버페이 포인트 전환 등록',
-            'GS25': '전국 GS25 오프라인 매장 포스기 결제',
-            'CU': '전국 CU 편의점 오프라인 매장 포스기 결제',
-            '문화상품권': '컬쳐랜드 및 오프라인 지정 서점'
+        
+        const brandStyleMap = {
+            '신세계백화점': { border: 'brand-shinsegae', badge: 'badge-shinsegae' },
+            '배달의민족': { border: 'brand-baemin', badge: 'badge-baemin' },
+            '네이버페이': { border: 'brand-naverpay', badge: 'badge-naverpay' },
+            'GS25': { border: 'brand-gs25', badge: 'badge-gs25' },
+            'CU': { border: 'brand-cu', badge: 'badge-cu' },
+            '문화상품권': { border: 'brand-culture', badge: 'badge-culture' }
         };
+
+        const mockExchangePlaces = {
+            '신세계백화점': '전국 이마트 및 신세계백화점 상품권 교환 키오스크',
+            '배달의민족': '배달의민족 APP > My배민 > 상품권 등록창',
+            '네이버페이': '네이버 웹 지갑 > 쿠폰 > 네이버페이 포인트 전환',
+            'GS25': '전국 GS25 오프라인 편의점 매장 포스기 결제',
+            'CU': '전국 CU 오프라인 편의점 매장 포스기 결제',
+            '문화상품권': '컬쳐랜드 공식 홈페이지 온라인 충전 및 사용 지정처'
+        };
+
         const imageCollections = {
             '신세계백화점': 'http://googleusercontent.com/image_collection/image_retrieval/4984158485017798346',
             '배달의민족': 'http://googleusercontent.com/image_collection/image_retrieval/14059444913452076328',
@@ -164,7 +304,6 @@
         };
 
         const products = [];
-        // 45개 품목 데이터 루프 생성 커널
         for (let i = 1; i <= 45; i++) {
             const brand = productBrands[(i - 1) % productBrands.length];
             let price = 5000;
@@ -177,7 +316,7 @@
             products.push({
                 id: `SKU-GF-${1000 + i}`,
                 brand: brand,
-                name: `${brand} 모바일 금액권 ${price.toLocaleString()}원권`,
+                name: `${brand} 공식 모바일 인증 상품권 ${price.toLocaleString()}원권`,
                 price: price,
                 category: category,
                 image: imageCollections[brand],
@@ -185,15 +324,15 @@
             });
         }
 
-        // 초기 구동 핸들러
         document.addEventListener('DOMContentLoaded', () => {
+            renderBaseMissions(); // 25개 미션 노드 인젝션
             renderCalendar();
             renderClockView();
             renderShopProducts(products);
             updatePointsUI();
+            calculateProgress();
         });
 
-        // 탭 토글 시스템
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.replace('block', 'hidden'));
             document.getElementById(tabId).classList.replace('hidden', 'block');
@@ -201,49 +340,128 @@
             document.getElementById('btn-plan-tab').className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-400 hover:text-white";
             document.getElementById('btn-shop-tab').className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-400 hover:text-white";
             
-            document.getElementById(`btn-${tabId}`).className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-sky-500 text-black font-semibold";
+            document.getElementById(`btn-${tabId}`).className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-sky-500 text-black font-bold";
         }
 
-        // 1. 월별 플랜 그리드 달력 렌더링 로직
+        // [핵심 요구사항 구현] 25개 미션 템플릿 컴파일러 및 리워드 분배 스크립트
+        function renderBaseMissions() {
+            const container = document.getElementById('base-mission-container');
+            container.innerHTML = '';
+
+            baseMissions.forEach(mission => {
+                const node = document.createElement('div');
+                node.className = `flex justify-between items-center p-3 rounded-xl border transition-all ${
+                    mission.isDone 
+                    ? 'bg-slate-900/40 border-slate-800 text-slate-500' 
+                    : 'bg-slate-900 border-slate-700/60 hover:border-slate-600 text-slate-200'
+                }`;
+
+                node.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid ${mission.isDone ? 'fa-circle-check text-slate-600' : 'fa-circle text-slate-700'} text-sm"></i>
+                        <span class="text-xs font-semibold ${mission.isDone ? 'line-through' : ''}">${mission.title}</span>
+                    </div>
+                    <button onclick="completeBaseMission('${mission.id}')" ${mission.isDone ? 'disabled' : ''} 
+                            class="px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${
+                                mission.isDone 
+                                ? 'bg-slate-800 text-slate-600 cursor-not-allowed' 
+                                : 'bg-amber-500 hover:bg-amber-400 text-black cursor-pointer shadow-sm'
+                            }">
+                        ${mission.isDone ? '지급 완료' : '인증 +1,000P'}
+                    </button>
+                `;
+                container.appendChild(node);
+            });
+        }
+
+        // 미션 완료 시 포인트 실시간 지급 핵심 인터랙션 트랜잭션
+        function completeBaseMission(id) {
+            const mission = baseMissions.find(m => m.id === id);
+            if (!mission || mission.isDone) return;
+
+            // 가상 영수증 처리 상태 변경 및 적립 계산 시뮬레이션
+            mission.isDone = true;
+            userPoints += mission.reward;
+
+            // UI 일괄 갱신 명령하달
+            updatePointsUI();
+            renderBaseMissions();
+            
+            // 오늘 실천을 증명했으므로 달성 대시보드를 위해 가상으로 달력 일자 1일 자동 체크 바인딩
+            const firstEmptyDay = calendarState.find(item => !item.isCompleted);
+            if (firstEmptyDay) {
+                firstEmptyDay.isCompleted = true;
+                renderCalendar();
+                calculateProgress();
+            }
+
+            // 부드러운 토스트 알림으로 사용자 편의 증대
+            alert(`🎉 미션 클리어: [${mission.title}]\n\n습관 형성 보상금 1,000P가 실시간 입금되었습니다!\n상단 계정 지갑 및 상점을 확인하세요.`);
+        }
+
+        // 실시간 달성률 분석 프로그래스 연산
+        function calculateProgress() {
+            const totalDays = calendarState.length;
+            const completedDays = calendarState.filter(item => item.isCompleted).length;
+            const rate = Math.round((completedDays / totalDays) * 100);
+
+            document.getElementById('dashboard-rate-text').innerText = `${rate}%`;
+            document.getElementById('dashboard-progress-fill').style.width = `${rate}%`;
+            document.getElementById('dashboard-count-text').innerText = `${completedDays} / ${totalDays} DAYS RECORDED`;
+        }
+
+        function toggleDayStatus(day) {
+            const target = calendarState.find(item => item.day === day);
+            if (target) {
+                target.isCompleted = !target.isCompleted;
+                renderCalendar();
+                calculateProgress();
+            }
+        }
+
+        // 월간 캘린더 그리드 컴포넌트 렌더러
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
             
-            // 2026년 5월 기준 시작 요일 오프셋 처리 (금요일 시작 = 공백 5개)
             for (let i = 0; i < 5; i++) {
                 const empty = document.createElement('div');
                 grid.appendChild(empty);
             }
 
-            for (let day = 1; day <= 31; day++) {
+            calendarState.forEach(item => {
                 const dayEl = document.createElement('button');
-                // 임의의 더미 로그 스케일 시뮬레이션 마킹
-                const isCompleted = day % 3 !== 0;
+                dayEl.onclick = () => toggleDayStatus(item.day);
                 
-                dayEl.className = `p-3 rounded-xl font-mono text-sm flex flex-col items-center justify-between transition-all aspect-square border ${
-                    isCompleted 
-                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-400 font-bold hover:bg-sky-500/20' 
-                    : 'bg-slate-800/40 border-slate-700/60 text-slate-500 hover:bg-slate-700'
+                const dayOfWeek = (item.day + 4) % 7; 
+                let textCol = 'text-slate-300';
+                if (dayOfWeek === 5) textCol = 'text-sky-400';
+                if (dayOfWeek === 6) textCol = 'text-rose-400';
+
+                dayEl.className = `p-2.5 rounded-xl font-mono text-xs flex flex-col items-center justify-between transition-all aspect-square border cursor-pointer ${
+                    item.isCompleted 
+                    ? 'bg-emerald-500/10 border-emerald-500/30 font-bold hover:bg-emerald-500/20 ' + textCol
+                    : 'bg-slate-800/40 border-slate-700/60 font-medium hover:bg-slate-700 text-slate-600'
                 }`;
                 
                 dayEl.innerHTML = `
-                    <span>${day}</span>
-                    <span class="w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-sky-400 shadow-[0_0_6px_#38bdf8]' : 'bg-transparent'}"></span>
+                    <span>${item.day}</span>
+                    <span class="w-1.5 h-1.5 rounded-full ${item.isCompleted ? 'bg-emerald-400 shadow-[0_0_6px_#10b981]' : 'bg-transparent'}"></span>
                 `;
                 grid.appendChild(dayEl);
-            }
+            });
         }
 
-        // 1. 일간 플랜 시계 방향 나열 (24H Radial 배치 수학적 모델 적용)
+        // 일간 플랜 시계형 (Clock-View) 반경 포지셔닝 모듈
         function renderClockView() {
             const clock = document.getElementById('routine-clock');
             const totalHours = 24;
-            const radius = 110; // 배치 반경 피셀 수치
+            const radius = 105;
 
             for (let hour = 0; hour < totalHours; hour += 2) {
-                const angle = ((hour - 6) * (360 / totalHours)) * (Math.PI / 180); // 12시 정각 상단 매핑 변환 정렬
-                const x = 140 + radius * Math.cos(angle) - 10;
-                const y = 140 + radius * Math.sin(angle) - 10;
+                const angle = ((hour - 6) * (360 / totalHours)) * (Math.PI / 180); 
+                const x = 140 + radius * Math.cos(angle) - 12;
+                const y = 140 + radius * Math.sin(angle) - 12;
 
                 const hourMarker = document.createElement('div');
                 hourMarker.className = 'clock-number';
@@ -251,44 +469,48 @@
                 hourMarker.style.top = `${y}px`;
                 hourMarker.innerText = hour;
                 
-                // 특정 주요 일간 플랜 배치 시각 가시 활성화
                 if (hour === 6 || hour === 12 || hour === 22) {
-                    hourMarker.className = 'clock-number text-sky-400 bg-sky-950 px-1.5 border border-sky-500/30 rounded text-xs';
+                    hourMarker.className = 'clock-number text-emerald-400 font-bold bg-slate-900 border border-emerald-500/40 rounded-md scale-110 px-1';
                 }
-
                 clock.appendChild(hourMarker);
             }
         }
 
-        // 2-2. 상점 데이터 바인딩 주입 팩토리
+        // 상점 상품 카드 렌더러
         function renderShopProducts(dataList) {
             const container = document.getElementById('shop-products-container');
             container.innerHTML = '';
 
             dataList.forEach(prod => {
+                const styles = brandStyleMap[prod.brand] || { border: 'border-slate-700', badge: 'bg-slate-600 text-white' };
+                const isAffordable = userPoints >= prod.price;
+
                 const card = document.createElement('div');
-                card.className = 'bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden hover:border-slate-600 transition-all group flex flex-col justify-between shadow-lg';
+                card.className = `bg-slate-800 border-x border-b border-slate-700 rounded-2xl overflow-hidden hover:border-slate-500 transition-all group flex flex-col justify-between shadow-lg ${styles.border}`;
                 card.innerHTML = `
                     <div>
-                        <div class="h-44 overflow-hidden bg-slate-950 flex items-center justify-center relative p-4">
+                        <div class="h-40 overflow-hidden bg-white flex items-center justify-center relative p-5 shadow-inner">
                             <img src="${prod.image}" alt="${prod.name}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300">
-                            <span class="absolute top-3 right-3 text-[10px] bg-slate-900/80 backdrop-blur-md px-2 py-0.5 rounded-md border border-slate-700 text-slate-400 font-mono">${prod.id}</span>
+                            <span class="absolute top-2 left-2 text-[9px] font-bold tracking-wide px-2 py-0.5 rounded ${styles.badge}">${prod.brand}</span>
                         </div>
                         <div class="p-4">
-                            <span class="text-xs font-semibold text-sky-400 tracking-wider">${prod.brand}</span>
-                            <h4 class="text-sm font-bold text-slate-100 mt-1 line-clamp-2 h-10">${prod.name}</h4>
+                            <h4 class="text-sm font-bold text-slate-100 line-clamp-2 h-10 tracking-tight leading-snug">${prod.name}</h4>
                         </div>
                     </div>
                     <div class="p-4 pt-0">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs text-slate-400 font-medium">필요 포인트</span>
-                            <div class="flex items-center gap-1">
-                                <span class="font-mono font-black text-amber-400 text-base">${prod.price.toLocaleString()}</span>
-                                <span class="text-xs text-amber-500">P</span>
+                        <div class="flex justify-between items-center mb-3 bg-slate-900/40 px-2 py-1.5 rounded-lg border border-slate-700/50">
+                            <span class="text-[11px] text-slate-400 font-medium">필요 포인트</span>
+                            <div class="flex items-center gap-0.5">
+                                <span class="font-mono font-black ${isAffordable ? 'text-amber-400' : 'text-rose-400'} text-sm">${prod.price.toLocaleString()}</span>
+                                <span class="text-[10px] ${isAffordable ? 'text-amber-500' : 'text-rose-500'} font-bold">P</span>
                             </div>
                         </div>
-                        <button onclick="purchaseCoupon('${prod.id}')" class="w-full text-xs font-bold bg-slate-700 text-white py-2.5 rounded-xl hover:bg-sky-500 hover:text-black transition-all flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-basket-shopping text-[11px]"></i> 바로 구매하기
+                        <button onclick="purchaseCoupon('${prod.id}')" class="w-full text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                            isAffordable 
+                            ? 'bg-slate-700 hover:bg-sky-500 hover:text-black text-white cursor-pointer shadow-md' 
+                            : 'bg-slate-800 border border-slate-700 text-slate-500 cursor-not-allowed opacity-50'
+                        }">
+                            <i class="fa-solid fa-basket-shopping text-[11px]"></i> ${isAffordable ? '바로 교환하기' : '포인트 부족'}
                         </button>
                     </div>
                 `;
@@ -296,9 +518,8 @@
             });
         }
 
-        // 상점 카테고리 필터 정렬 스위치
         function filterShop(category) {
-            document.querySelectorAll('[id^="filter-"]').forEach(btn => btn.className = "px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white");
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => btn.className = "px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all");
             document.getElementById(`filter-${category}`).className = "px-3 py-1.5 rounded-lg font-medium bg-slate-700 text-white";
 
             if (category === 'all') {
@@ -309,67 +530,29 @@
             }
         }
 
-        // 2-4. 포인트 검증 및 실시간 차감 핵심 비즈니스 아키텍처
         function purchaseCoupon(skuId) {
             const item = products.find(p => p.id === skuId);
             if (!item) return;
 
-            // 잔여 포인트 벨리데이션 체크
             if (userPoints < item.price) {
-                alert(`⚠️ 포인트를 차감할 수 없습니다.\n\n[잔액 부족]\n필요 포인트: ${item.price.toLocaleString()} P\n현재 보유 포인트: ${userPoints.toLocaleString()} P`);
+                alert(`❌ 구매 원천 차단: 포인트 잔액이 부족합니다.`);
                 return;
             }
 
-            // 실시간 변동 차감 확정 트랜잭션 시뮬레이션
-            if (confirm(`🎁 [기프티쇼 비즈 API 즉시 연동 주문]\n\n상품명: ${item.name}\n차감 포인트: ${item.price.toLocaleString()} P\n\n해당 상품권을 발송하시겠습니까?`)) {
+            if (confirm(`⚡ [기프티쇼 비즈 실시간 주문 계약 요청]\n\n보유 포인트를 차감하고 기프티콘을 즉시 발행하시겠습니까?`)) {
                 userPoints -= item.price;
                 updatePointsUI();
                 
-                // 2-1, 2-3. 기프티쇼 가상 핀번호 생성 수령 후 바코드 출력 모듈 기동
                 const randomCouponNum = Math.floor(100000000000 + Math.random() * 900000000000).toString();
                 openModal(item, randomCouponNum);
             }
         }
 
-        // 글로벌 포인트 UI 싱크 데이터 갱신
         function updatePointsUI() {
             document.getElementById('user-points-display').innerText = userPoints.toLocaleString();
-        }
-
-        // 2-3. 오프라인 매장용 실시간 결제 규격 포맷 바코드 모달 제어 엔진
-        function openModal(item, couponNo) {
-            document.getElementById('modal-brand').innerText = item.brand;
-            document.getElementById('modal-name').innerText = item.name;
-            document.getElementById('modal-code').innerText = couponNo.replace(/(\d{4})(\d{4})(\d{4})/g, '$1-$2-$3');
-            document.getElementById('modal-exchange').innerText = item.exchange;
-
-            document.getElementById('barcode-modal').classList.remove('hidden');
-
-            // JsBarcode 라이브러리를 활용한 포스기(POS) 인식용 표준 CODE128 바코드 실시간 드로잉
-            JsBarcode("#barcode-canvas", couponNo, {
-                format: "CODE128",
-                width: 2.2,
-                height: 65,
-                displayValue: false,
-                margin: 0,
-                lineColor: "#0f172a"
-            });
-        }
-
-        function closeModal() {
-            document.getElementById('barcode-modal').classList.add('hidden');
-        }
-
-        function copyCode() {
-            const rawCode = document.getElementById('modal-code').innerText.replace(/-/g, '');
-            navigator.clipboard.writeText(rawCode).then(() => {
-                alert('쿠폰 일련번호가 클립보드에 복사되었습니다.');
-            });
-        }
-    </script>
-</body>
-</html>
-         
-          
-         
-     
+            
+            const container = document.getElementById('point-bar-container');
+            const icon = document.getElementById('point-icon');
+            
+            if (userPoints < 5000) { 
+                container.className = "bg-slate-900 px-5 py-2 rounded-full border
