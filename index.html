@@ -1,246 +1,375 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>멘탈해빗 (MentalHabit)</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentalHabit 2.0 - 습관 관리 및 포인트 상점</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+        /* 시계형 일간 플랜을 위한 커스텀 스타일 */
+        .clock-container { position: relative; width: 280px; height: 280px; border-radius: 50%; border: 8px solid #334155; background: #1e293b; margin: 0 auto; }
+        .clock-number { position: absolute; width: 20px; height: 20px; text-align: center; color: #94a3b8; font-weight: bold; font-size: 14px; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-height-screen pb-12">
 
-  <!-- ===== 헤더 ===== -->
-  <header class="app-header">
-    <div class="header-inner">
-      <h1 class="app-title">🧠 멘탈해빗 <span class="app-subtitle">MentalHabit</span></h1>
-      <p class="app-desc">인지행동치료 기반 웰니스 습관 트래커</p>
-    </div>
-  </header>
-
-  <!-- ===== 메인 컨텐츠 ===== -->
-  <main class="main-container">
-
-    <!-- 카테고리 탭 -->
-    <nav class="category-tabs" role="tablist">
-      <button class="tab-btn active" data-tab="bio" role="tab" aria-selected="true">🔋 바이오 루틴</button>
-      <button class="tab-btn" data-tab="action" role="tab" aria-selected="false">⚡ 행동 활성화</button>
-      <button class="tab-btn" data-tab="stimulus" role="tab" aria-selected="false">⏳ 자극 통제</button>
-    </nav>
-
-    <!-- ===== 탭 패널: 바이오 루틴 ===== -->
-    <section class="tab-panel active" id="tab-bio" role="tabpanel">
-
-      <!-- 미션 1: 디지털 기기 차단 -->
-      <div class="mission-card" id="card-m1">
-        <div class="mission-header">
-          <span class="mission-badge">미션 1</span>
-          <h2 class="mission-title">취침 1시간 전 디지털 기기 차단</h2>
-          <p class="mission-sub">스크린 오프 — 60분 카운트다운</p>
-        </div>
-        <div class="mission-body">
-          <div class="timer-display" id="timer-m1">60:00</div>
-          <div class="timer-controls">
-            <button class="btn btn-primary" onclick="startTimer('m1', 3600)">시작</button>
-            <button class="btn btn-outline" onclick="pauseTimer('m1')">일시정지</button>
-            <button class="btn btn-ghost" onclick="resetTimer('m1', 3600)">초기화</button>
-          </div>
-          <button class="btn btn-success btn-complete" onclick="completeMission('미션1: 디지털 기기 차단')">✔ 미션 완료</button>
-        </div>
-      </div>
-
-      <!-- 미션 2: 심호흡 -->
-      <div class="mission-card" id="card-m2">
-        <div class="mission-header">
-          <span class="mission-badge">미션 2</span>
-          <h2 class="mission-title">심호흡 2분 수행</h2>
-          <p class="mission-sub">4-4-8 호흡법 — 흡기 4초 · 숨참기 4초 · 호기 8초</p>
-        </div>
-        <div class="mission-body">
-          <!-- 호흡 애니메이션 원 -->
-          <div class="breath-wrapper">
-            <div class="breath-circle" id="breath-circle">
-              <span class="breath-label" id="breath-label">준비</span>
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-brain text-sky-400 text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-tight text-white">MentalHabit <span class="text-sky-400">2.0</span></h1>
             </div>
-          </div>
-          <div class="timer-display" id="timer-m2">02:00</div>
-          <div class="timer-controls">
-            <button class="btn btn-primary" onclick="startBreath()">시작</button>
-            <button class="btn btn-ghost" onclick="resetBreath()">초기화</button>
-          </div>
-          <button class="btn btn-success btn-complete" onclick="completeMission('미션2: 심호흡 4-4-8')">✔ 미션 완료</button>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ===== 탭 패널: 행동 활성화 ===== -->
-    <section class="tab-panel" id="tab-action" role="tabpanel">
-
-      <!-- 미션 3: 환경 정돈 -->
-      <div class="mission-card" id="card-m3">
-        <div class="mission-header">
-          <span class="mission-badge">미션 3</span>
-          <h2 class="mission-title">5분간 주변 환경 1곳 정돈하기</h2>
-          <p class="mission-sub">5분 카운트다운 — 완료 후 체크</p>
-        </div>
-        <div class="mission-body">
-          <div class="timer-display" id="timer-m3">05:00</div>
-          <div class="timer-controls">
-            <button class="btn btn-primary" onclick="startTimer('m3', 300)">시작</button>
-            <button class="btn btn-outline" onclick="pauseTimer('m3')">일시정지</button>
-            <button class="btn btn-ghost" onclick="resetTimer('m3', 300)">초기화</button>
-          </div>
-          <button class="btn btn-success btn-complete" onclick="completeMission('미션3: 환경 정돈 5분')">✔ 미션 완료</button>
-        </div>
-      </div>
-
-      <!-- 미션 4: 감사·성취 기록 -->
-      <div class="mission-card" id="card-m4">
-        <div class="mission-header">
-          <span class="mission-badge">미션 4</span>
-          <h2 class="mission-title">하루 3가지 감사/성취 항목 기록</h2>
-          <p class="mission-sub">인지행동치료(CBT) 기반 — 긍정적 인지 재구성</p>
-        </div>
-        <div class="mission-body">
-          <div class="gratitude-form">
-            <label class="form-label">1. 오늘 감사한 일</label>
-            <input type="text" class="form-input" id="gratitude-1" placeholder="예) 따뜻한 커피 한 잔" maxlength="100" />
-
-            <label class="form-label">2. 오늘 잘한 일</label>
-            <input type="text" class="form-input" id="gratitude-2" placeholder="예) 약속 시간을 잘 지켰다" maxlength="100" />
-
-            <label class="form-label">3. 내일 기대되는 일</label>
-            <input type="text" class="form-input" id="gratitude-3" placeholder="예) 친구와 산책 계획" maxlength="100" />
-
-            <button class="btn btn-primary" onclick="saveGratitude()">💾 저장</button>
-          </div>
-          <button class="btn btn-success btn-complete" onclick="completeMission('미션4: 감사·성취 기록')">✔ 미션 완료</button>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ===== 탭 패널: 자극 통제 ===== -->
-    <section class="tab-panel" id="tab-stimulus" role="tabpanel">
-
-      <!-- 미션 5: 뽀모도로 -->
-      <div class="mission-card" id="card-m5">
-        <div class="mission-header">
-          <span class="mission-badge">미션 5</span>
-          <h2 class="mission-title">싱글 태스킹 타이머</h2>
-          <p class="mission-sub">뽀모도로 — 25분 집중 · 5분 휴식</p>
-        </div>
-        <div class="mission-body">
-          <!-- 뽀모도로 모드 표시 -->
-          <div class="pomodoro-mode" id="pomodoro-mode-label">🍅 집중 모드</div>
-          <div class="timer-display pomodoro-timer" id="timer-m5">25:00</div>
-          <!-- 진행 바 -->
-          <div class="progress-bar-wrapper">
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" id="pomodoro-progress"></div>
+            <nav class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700">
+                <button onclick="switchTab('plan-tab')" id="btn-plan-tab" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-sky-500 text-black">습관 플래너</button>
+                <button onclick="switchTab('shop-tab')" id="btn-shop-tab" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-400 hover:text-white">포인트 상점</button>
+            </nav>
+            <div class="bg-slate-900 px-4 py-2 rounded-full border border-sky-500/30 flex items-center gap-2 shadow-inner">
+                <i class="fa-solid fa-coins text-amber-400 animate-pulse"></i>
+                <span class="text-xs text-slate-400 font-medium">보유 포인트:</span>
+                <span id="user-points-display" class="font-bold text-amber-400 text-lg">50,000</span>
+                <span class="text-xs text-amber-400">P</span>
             </div>
-          </div>
-          <div class="timer-controls">
-            <button class="btn btn-primary" onclick="startPomodoro()">시작</button>
-            <button class="btn btn-outline" onclick="pausePomodoro()">일시정지</button>
-            <button class="btn btn-ghost" onclick="resetPomodoro()">초기화</button>
-          </div>
-          <!-- 뽀모도로 완료 횟수 -->
-          <div class="pomodoro-count">
-            완료한 집중 세션: <strong id="pomodoro-count">0</strong>회
-            &nbsp;|&nbsp; 휴식 완료: <strong id="break-count">0</strong>회
-          </div>
-          <button class="btn btn-success btn-complete" onclick="completeMission('미션5: 뽀모도로 타이머')">✔ 미션 완료</button>
         </div>
-      </div>
+    </header>
 
-    </section>
+    <main class="max-w-7xl mx-auto px-4 mt-8">
+        
+        <section id="plan-tab" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:col-span-7 shadow-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-regular fa-calendar-days text-sky-400"></i> 월간 습관 달력 (5월)
+                        </h2>
+                        <span class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">달성률 68%</span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2 border-b border-slate-700 pb-2">
+                        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2" id="calendar-grid">
+                        </div>
+                </div>
 
-    <!-- ===== 데이터 로그 대시보드 ===== -->
-    <section class="dashboard-section">
-      <div class="dashboard-header">
-        <h2 class="dashboard-title">📊 감정-행동 데이터 로그</h2>
-        <button class="btn btn-ghost btn-sm" onclick="clearLog()">기록 초기화</button>
-      </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:col-span-5 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-regular fa-clock text-emerald-400"></i> 일간 루틴 루프 (Clock-View)
+                            </h2>
+                            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">오늘의 플랜</span>
+                        </div>
+                        
+                        <div class="py-4">
+                            <div class="clock-container" id="routine-clock">
+                                <div class="absolute inset-0 m-auto w-3 h-3 bg-emerald-400 rounded-full shadow-[0_0_10px_#10b981]"></div>
+                                </div>
+                        </div>
+                    </div>
 
-      <!-- 감정 점수 평균 요약 -->
-      <div class="summary-row">
-        <div class="summary-card">
-          <span class="summary-num" id="summary-total">0</span>
-          <span class="summary-label">총 미션 완료</span>
+                    <div class="mt-4 bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
+                        <h3 class="text-xs font-semibold text-slate-400 mb-2">지정된 시간별 핵심 루틴</h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between"><span class="text-emerald-400 font-medium">06:00 미라클 모닝</span><span class="text-slate-500">완료</span></div>
+                            <div class="flex justify-between"><span class="text-sky-400 font-medium">12:00 건강 정보 심화 학습</span><span class="text-slate-500">완료</span></div>
+                            <div class="flex justify-between"><span class="text-amber-400 font-medium">22:00 오프라인 일기 작성</span><span class="text-amber-500 font-medium">진행 대기</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="shop-tab" class="tab-content hidden">
+            <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white tracking-tight">Ecosystem Point Shop</h2>
+                    <p class="text-sm text-slate-400 mt-1">성공적인 습관 형성 보상으로 제공되는 실시간 B2B 연동형 상점 인프라입니다.</p>
+                </div>
+                <div class="flex flex-wrap gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
+                    <button onclick="filterShop('all')" class="px-3 py-1.5 rounded-lg font-medium bg-slate-700 text-white" id="filter-all">전체 쿠폰</button>
+                    <button onclick="filterShop('department')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" id="filter-department">백화점·주유</button>
+                    <button onclick="filterShop('delivery')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" id="filter-delivery">배달·페이</button>
+                    <button onclick="filterShop('convenience')" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" id="filter-convenience">편의점·상품권</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3.5 mb-8 flex items-center justify-between text-xs text-slate-300">
+                <div class="flex items-center gap-2">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span><strong>2-1. 외부 API 커넥터 상태:</strong> <span class="text-emerald-400">기프티쇼 비즈 (Giftishow Biz) Production 전용선 연동 완료</span></span>
+                </div>
+                <span class="text-slate-500 hidden sm:inline">정방향 동기화 데이터 SKU: 45 EA</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="shop-products-container">
+                </div>
+        </section>
+
+    </main>
+
+    <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white text-slate-900 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl transform transition-transform border border-slate-200">
+            <div class="flex justify-between items-center mb-4">
+                <span id="modal-brand" class="text-xs font-bold text-slate-500 tracking-wider block uppercase">BRAND</span>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <h3 id="modal-name" class="text-lg font-black text-slate-900 mb-6">상품 기본 정보 명칭</h3>
+            
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 flex flex-col items-center justify-center">
+                <svg id="barcode-canvas" class="max-w-full"></svg>
+                <div class="mt-4 flex items-center gap-2 bg-white px-4 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                    <span id="modal-code" class="font-mono tracking-widest text-slate-800 font-bold text-sm">0000 0000 0000</span>
+                    <button onclick="copyCode()" class="text-slate-400 hover:text-sky-600 text-xs transition-colors" title="번호 복사"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+
+            <div class="text-left text-xs space-y-1.5 text-slate-500 border-t border-slate-100 pt-4 px-1">
+                <div class="flex justify-between"><span>발행 공급처</span><span class="font-medium text-slate-700">KT알파 기프티쇼 비즈</span></div>
+                <div class="flex justify-between"><span>교환처 정보</span><span id="modal-exchange" class="font-medium text-slate-700">-</span></div>
+                <div class="flex justify-between"><span>유효기간</span><span class="font-medium text-rose-600 font-semibold">2026-08-25 (90일 남음)</span></div>
+            </div>
+
+            <button onclick="closeModal()" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-md">확인 및 닫기</button>
         </div>
-        <div class="summary-card">
-          <span class="summary-num" id="summary-avg">—</span>
-          <span class="summary-label">평균 감정 점수</span>
-        </div>
-        <div class="summary-card">
-          <span class="summary-num" id="summary-today">0</span>
-          <span class="summary-label">오늘 완료</span>
-        </div>
-      </div>
-
-      <!-- CSS 바 그래프 -->
-      <div class="chart-area">
-        <h3 class="chart-title">최근 감정 점수 변화</h3>
-        <div class="bar-chart" id="bar-chart">
-          <p class="empty-log">아직 기록이 없습니다. 미션을 완료하면 여기에 그래프가 나타납니다.</p>
-        </div>
-      </div>
-
-      <!-- 최근 미션 로그 리스트 -->
-      <div class="log-list-area">
-        <h3 class="chart-title">최근 기록 목록</h3>
-        <ul class="log-list" id="log-list">
-          <li class="empty-log">기록이 없습니다.</li>
-        </ul>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ===== 감정 점수 팝업 ===== -->
-  <div class="popup-overlay" id="emotion-popup" role="dialog" aria-modal="true" aria-label="감정 점수 입력">
-    <div class="popup-card">
-      <h3 class="popup-title">미션 완료! 🎉</h3>
-      <p class="popup-mission-name" id="popup-mission-name"></p>
-      <p class="popup-desc">지금 기분이 어떠신가요?<br/>현재 감정 점수를 선택해 주세요.</p>
-
-      <div class="emotion-slider-wrapper">
-        <input
-          type="range"
-          class="emotion-slider"
-          id="emotion-slider"
-          min="1" max="10" value="5"
-          oninput="updateEmotionLabel(this.value)"
-        />
-        <div class="emotion-labels">
-          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-          <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
-        </div>
-      </div>
-
-      <div class="emotion-score-display">
-        <span class="emotion-emoji" id="emotion-emoji">😐</span>
-        <span class="emotion-score-text" id="emotion-score-text">5점 — 보통</span>
-      </div>
-
-      <div class="popup-actions">
-        <button class="btn btn-primary" onclick="saveEmotionScore()">저장하기</button>
-        <button class="btn btn-ghost" onclick="closePopup()">닫기</button>
-      </div>
     </div>
-  </div>
 
-  <!-- ===== 알림 토스트 ===== -->
-  <div class="toast" id="toast"></div>
+    <script>
+        // 글로벌 가상 데이터베이스 상태 모델 구조
+        let userPoints = 50000;
+        
+        // 2-2. 45개 이상의 SKU 실물형 쿠폰 메타 데이터 바인딩 데이터 세트
+        const productBrands = ['신세계백화점', '배달의민족', '네이버페이', 'GS25', 'CU', '문화상품권'];
+        const mockExchangePlaces = {
+            '신세계백화점': '전국 신세계백화점 및 이마트 고객센터',
+            '배달의민족': '배달의민족 앱 등록 후 결제 사용',
+            '네이버페이': '네이버페이 포인트 전환 등록',
+            'GS25': '전국 GS25 오프라인 매장 포스기 결제',
+            'CU': '전국 CU 편의점 오프라인 매장 포스기 결제',
+            '문화상품권': '컬쳐랜드 및 오프라인 지정 서점'
+        };
+        const imageCollections = {
+            '신세계백화점': 'http://googleusercontent.com/image_collection/image_retrieval/4984158485017798346',
+            '배달의민족': 'http://googleusercontent.com/image_collection/image_retrieval/14059444913452076328',
+            '네이버페이': 'http://googleusercontent.com/image_collection/image_retrieval/15825860963740766245',
+            '문화상품권': 'http://googleusercontent.com/image_collection/image_retrieval/12195251056500679631',
+            'GS25': 'http://googleusercontent.com/image_collection/image_retrieval/1745238922679403040',
+            'CU': 'http://googleusercontent.com/image_collection/image_retrieval/1745238922679403040'
+        };
 
-  <!-- ===== 푸터 ===== -->
-  <footer class="app-footer">
-    <p class="footer-notice">
-      ⚠ 이 앱은 생활습관 참고용이며, 의학적 진단이나 치료를 대신할 수 없습니다.
-    </p>
-    <p class="footer-copy">© 2025 멘탈해빗 MentalHabit — CBT 기반 웰니스 습관 트래커</p>
-  </footer>
+        const products = [];
+        // 45개 품목 데이터 루프 생성 커널
+        for (let i = 1; i <= 45; i++) {
+            const brand = productBrands[(i - 1) % productBrands.length];
+            let price = 5000;
+            let category = 'convenience';
+            
+            if (brand === '신세계백화점') { price = 10000 * ((i % 3) + 1); category = 'department'; }
+            else if (brand === '배달의민족' || brand === '네이버페이') { price = 5000 * ((i % 4) + 1); category = 'delivery'; }
+            else { price = 1000 * ((i % 5) + 1); category = 'convenience'; }
 
-  <script src="script.js"></script>
+            products.push({
+                id: `SKU-GF-${1000 + i}`,
+                brand: brand,
+                name: `${brand} 모바일 금액권 ${price.toLocaleString()}원권`,
+                price: price,
+                category: category,
+                image: imageCollections[brand],
+                exchange: mockExchangePlaces[brand]
+            });
+        }
+
+        // 초기 구동 핸들러
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendar();
+            renderClockView();
+            renderShopProducts(products);
+            updatePointsUI();
+        });
+
+        // 탭 토글 시스템
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.replace('block', 'hidden'));
+            document.getElementById(tabId).classList.replace('hidden', 'block');
+            
+            document.getElementById('btn-plan-tab').className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-400 hover:text-white";
+            document.getElementById('btn-shop-tab').className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-400 hover:text-white";
+            
+            document.getElementById(`btn-${tabId}`).className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-sky-500 text-black font-semibold";
+        }
+
+        // 1. 월별 플랜 그리드 달력 렌더링 로직
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            // 2026년 5월 기준 시작 요일 오프셋 처리 (금요일 시작 = 공백 5개)
+            for (let i = 0; i < 5; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= 31; day++) {
+                const dayEl = document.createElement('button');
+                // 임의의 더미 로그 스케일 시뮬레이션 마킹
+                const isCompleted = day % 3 !== 0;
+                
+                dayEl.className = `p-3 rounded-xl font-mono text-sm flex flex-col items-center justify-between transition-all aspect-square border ${
+                    isCompleted 
+                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-400 font-bold hover:bg-sky-500/20' 
+                    : 'bg-slate-800/40 border-slate-700/60 text-slate-500 hover:bg-slate-700'
+                }`;
+                
+                dayEl.innerHTML = `
+                    <span>${day}</span>
+                    <span class="w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-sky-400 shadow-[0_0_6px_#38bdf8]' : 'bg-transparent'}"></span>
+                `;
+                grid.appendChild(dayEl);
+            }
+        }
+
+        // 1. 일간 플랜 시계 방향 나열 (24H Radial 배치 수학적 모델 적용)
+        function renderClockView() {
+            const clock = document.getElementById('routine-clock');
+            const totalHours = 24;
+            const radius = 110; // 배치 반경 피셀 수치
+
+            for (let hour = 0; hour < totalHours; hour += 2) {
+                const angle = ((hour - 6) * (360 / totalHours)) * (Math.PI / 180); // 12시 정각 상단 매핑 변환 정렬
+                const x = 140 + radius * Math.cos(angle) - 10;
+                const y = 140 + radius * Math.sin(angle) - 10;
+
+                const hourMarker = document.createElement('div');
+                hourMarker.className = 'clock-number';
+                hourMarker.style.left = `${x}px`;
+                hourMarker.style.top = `${y}px`;
+                hourMarker.innerText = hour;
+                
+                // 특정 주요 일간 플랜 배치 시각 가시 활성화
+                if (hour === 6 || hour === 12 || hour === 22) {
+                    hourMarker.className = 'clock-number text-sky-400 bg-sky-950 px-1.5 border border-sky-500/30 rounded text-xs';
+                }
+
+                clock.appendChild(hourMarker);
+            }
+        }
+
+        // 2-2. 상점 데이터 바인딩 주입 팩토리
+        function renderShopProducts(dataList) {
+            const container = document.getElementById('shop-products-container');
+            container.innerHTML = '';
+
+            dataList.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden hover:border-slate-600 transition-all group flex flex-col justify-between shadow-lg';
+                card.innerHTML = `
+                    <div>
+                        <div class="h-44 overflow-hidden bg-slate-950 flex items-center justify-center relative p-4">
+                            <img src="${prod.image}" alt="${prod.name}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute top-3 right-3 text-[10px] bg-slate-900/80 backdrop-blur-md px-2 py-0.5 rounded-md border border-slate-700 text-slate-400 font-mono">${prod.id}</span>
+                        </div>
+                        <div class="p-4">
+                            <span class="text-xs font-semibold text-sky-400 tracking-wider">${prod.brand}</span>
+                            <h4 class="text-sm font-bold text-slate-100 mt-1 line-clamp-2 h-10">${prod.name}</h4>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs text-slate-400 font-medium">필요 포인트</span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-mono font-black text-amber-400 text-base">${prod.price.toLocaleString()}</span>
+                                <span class="text-xs text-amber-500">P</span>
+                            </div>
+                        </div>
+                        <button onclick="purchaseCoupon('${prod.id}')" class="w-full text-xs font-bold bg-slate-700 text-white py-2.5 rounded-xl hover:bg-sky-500 hover:text-black transition-all flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-basket-shopping text-[11px]"></i> 바로 구매하기
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 상점 카테고리 필터 정렬 스위치
+        function filterShop(category) {
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => btn.className = "px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white");
+            document.getElementById(`filter-${category}`).className = "px-3 py-1.5 rounded-lg font-medium bg-slate-700 text-white";
+
+            if (category === 'all') {
+                renderShopProducts(products);
+            } else {
+                const filtered = products.filter(p => p.category === category);
+                renderShopProducts(filtered);
+            }
+        }
+
+        // 2-4. 포인트 검증 및 실시간 차감 핵심 비즈니스 아키텍처
+        function purchaseCoupon(skuId) {
+            const item = products.find(p => p.id === skuId);
+            if (!item) return;
+
+            // 잔여 포인트 벨리데이션 체크
+            if (userPoints < item.price) {
+                alert(`⚠️ 포인트를 차감할 수 없습니다.\n\n[잔액 부족]\n필요 포인트: ${item.price.toLocaleString()} P\n현재 보유 포인트: ${userPoints.toLocaleString()} P`);
+                return;
+            }
+
+            // 실시간 변동 차감 확정 트랜잭션 시뮬레이션
+            if (confirm(`🎁 [기프티쇼 비즈 API 즉시 연동 주문]\n\n상품명: ${item.name}\n차감 포인트: ${item.price.toLocaleString()} P\n\n해당 상품권을 발송하시겠습니까?`)) {
+                userPoints -= item.price;
+                updatePointsUI();
+                
+                // 2-1, 2-3. 기프티쇼 가상 핀번호 생성 수령 후 바코드 출력 모듈 기동
+                const randomCouponNum = Math.floor(100000000000 + Math.random() * 900000000000).toString();
+                openModal(item, randomCouponNum);
+            }
+        }
+
+        // 글로벌 포인트 UI 싱크 데이터 갱신
+        function updatePointsUI() {
+            document.getElementById('user-points-display').innerText = userPoints.toLocaleString();
+        }
+
+        // 2-3. 오프라인 매장용 실시간 결제 규격 포맷 바코드 모달 제어 엔진
+        function openModal(item, couponNo) {
+            document.getElementById('modal-brand').innerText = item.brand;
+            document.getElementById('modal-name').innerText = item.name;
+            document.getElementById('modal-code').innerText = couponNo.replace(/(\d{4})(\d{4})(\d{4})/g, '$1-$2-$3');
+            document.getElementById('modal-exchange').innerText = item.exchange;
+
+            document.getElementById('barcode-modal').classList.remove('hidden');
+
+            // JsBarcode 라이브러리를 활용한 포스기(POS) 인식용 표준 CODE128 바코드 실시간 드로잉
+            JsBarcode("#barcode-canvas", couponNo, {
+                format: "CODE128",
+                width: 2.2,
+                height: 65,
+                displayValue: false,
+                margin: 0,
+                lineColor: "#0f172a"
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('barcode-modal').classList.add('hidden');
+        }
+
+        function copyCode() {
+            const rawCode = document.getElementById('modal-code').innerText.replace(/-/g, '');
+            navigator.clipboard.writeText(rawCode).then(() => {
+                alert('쿠폰 일련번호가 클립보드에 복사되었습니다.');
+            });
+        }
+    </script>
 </body>
 </html>
+         
+          
+         
+     
